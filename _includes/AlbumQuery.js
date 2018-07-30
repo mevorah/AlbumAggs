@@ -112,6 +112,14 @@ function getWikiPageHtml(pageTitle, successCallback, failureCallback) {
 	var formattedTitle = pageTitle.replace(/\s/g, '_');
 	var wikipediaDomain = "https://en.wikipedia.org";
 	var path = wikipediaDomain + "/wiki/" + formattedTitle;
+
+	$.getJSON('http://www.whateverorigin.org/get?url=' + encodeURIComponent(path) + '&callback=?', 
+		function(data){
+			console.log(data.contents);
+		}
+	);
+       
+
 	$.ajax({
 		url: path,
 		type: 'GET',
