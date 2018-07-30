@@ -113,13 +113,13 @@ function getWikiPageHtml(pageTitle, successCallback, failureCallback) {
 	var wikipediaDomain = "https://en.wikipedia.org";
 	var path = wikipediaDomain + "/wiki/" + formattedTitle;
 	$.ajax(path, {
+		dataType: 'jsonp',
 		success: function(data, status, xhr) {
 			successCallback(data);
 		},
 		error: function(data) {
 			console.log("Failed");
 			failureCallback(data);
-		},
-		dataType: 'jsonp'
+		}
 	});
 }
