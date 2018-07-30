@@ -117,7 +117,7 @@ function getWikiPageHtml(pageTitle, successCallback, failureCallback) {
 		url: "http://anyorigin.com/go?url=" + path,
 		dataType: "jsonp",
 		success: function(data, status, xhr) {
-			successCallback(data.content);
+			successCallback(data.contents);
 		},
 		error: function(data) {
 			console.log("Failed");
