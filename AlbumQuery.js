@@ -1,31 +1,77 @@
-query("The Beatles");
+$( document ).ready(function() {
+	$("#artist-input").submit(function(){
+		$("#album-content").html("");
+		var artist = $("#artist-input-text").val();
+		query(artist);
+    	return false;
+	});
+});
+
+
+//query("The Beatles");
 
 
 function query(artistName) {
+	var wikipediaDomain = "https://en.wikipedia.org";
 	getWikiPageHtml(
 		artistName, 
 		function(data) {
-			var links = getAlbumLinks(data);
+			var titlesAndLinks = getAlbumLinks(data);
 
-			console.log(links);
-			//var pageHtml = $(data);
-			//console.log(pageHtml);
-			/*var titles = getDiscogPageAlbumTitles(data);
-			titles.forEach(function(title) {
-				getWikiPageHtml(title, function(data) {
-					console.log("results for " + title);
-					var content = data.query.pages[0].revisions[0].content;
-					console.log(content);
-				}, 
-				function(data) {
+			if (titlesAndLinks === undefined || titlesAndLinks.length == 0) {
+				$("#album-content").append("We couldn't find any albums for this artist ***long sigh***.");
+				return;
+			}
 
-				});
-			});*/
+			var reviewTables = [];
+			titlesAndLinks.forEach(function(titleAndLink) {
+				getWikiPageHtml(
+					titleAndLink.link, 
+					function(data) {
+						var content = getWikiContent(data);
+						var tableHtml = $(content).find("#mw-content-text > div > table.wikitable.floatright")[0];
+						if (tableHtml === undefined) {
+							console.log("No reviews found for:" + titleAndLink.title);
+							return;
+						}
+
+						console.log("table:" + tableHtml);
+
+						$(tableHtml).removeAttr("style");
+						$(tableHtml).removeAttr("class");
+						$(tableHtml).find("*").removeAttr("style");
+						$(tableHtml).find("*").removeAttr("class");
+						$(tableHtml).find("a").contents().unwrap();
+						$(tableHtml).find("sup").remove();
+						var stars = $(tableHtml).find("span[role=img]").toArray();
+						stars.forEach(function(starsHtml) {
+							$(starsHtml).replaceWith("<span>" + $(starsHtml).attr("title") + "</span>")
+						});
+
+						var titleAndTable = {
+							"title" : titleAndLink.title,
+							"tableHtml" : tableHtml
+						};
+						reviewTables.push(titleAndTable);
+
+						render(titleAndTable);
+						console.log(reviewTables);	
+					},
+					function(data) {
+						$("#album-content").append("<p>We were able to find an article for this, but are you sure there are albums?</p>");
+					}
+				);
+			});
 		},
 		function(data) {
-			// Try getting regular artist page albums
+			$("#album-content").append("<p>Hey guy, are you sure this artist exists?</p>");
 		}
 	);
+}
+
+function render(titleAndTable) {
+	$("#album-content").append("<h2>" + titleAndTable.title + "</h2>")
+	$("#album-content").append(titleAndTable.tableHtml);
 }
 
 function getWikiContent(rawWikiHtml) {
@@ -40,40 +86,26 @@ function getWikiContent(rawWikiHtml) {
 }
 
 function getAlbumLinks(artistPageHtml) {
-	console.log(artistPageHtml);
-	var content = getWikiContent(data);
+	var wikipediaDomain = "https://en.wikipedia.org";
+	var content = getWikiContent(artistPageHtml);
 	var discogSection = $(content).find("#Discography").parent().nextAll("ul")[0];
-	var links = $(discogSection).find("a");
+	var links = $(discogSection).find("a").toArray();
 	var titleLinkPairs = [];
-	links.forEach(function(link) {
+	links.forEach( function(link) {
+		var href = $(link).attr("href");
+		var lastSlashIndex = href.lastIndexOf("\/");
+		var localLink = href.substring(lastSlashIndex + 1, href.length);
+		console.log(localLink);
 		var titleLink = {
-			"link"  : wikipediaDomain + $(link).attr("href"),
+			"link"  : localLink,
 			"title" : $(link).text()
 		};
-		titleLinkPairs.push(titleLink);
+		titleLinkPairs.push(titleLink);	
 	});
+
+	console.log(titleLinkPairs);
 
 	return titleLinkPairs;
-}
-
-function getDiscogPageAlbumTitles(discogPageHtml) {
-	var content = getWikiContent(discogPageHtml);
-	var markdownLinesWithLinks = content.match(/.*row.*\[\[.*\]\].*/g);
-	console.log(content);
-	var titles = [];
-	markdownLinesWithLinks.forEach(function(line) {
-		var startPos = line.indexOf("[[") + 2;
-		var endPos = line.indexOf("]]");
-		var link = line.substring(startPos, endPos);
-		var cleanedUpLink;
-		if (link.indexOf('\|') !== -1) {
-			cleanedUpLink = link.substring(0, link.indexOf('\|'));
-		} else {
-			cleanedUpLink = link;
-		}
-		titles.push(cleanedUpLink);
-	});
-	return titles;
 }
 
 function getWikiPageHtml(pageTitle, successCallback, failureCallback) {
@@ -82,11 +114,11 @@ function getWikiPageHtml(pageTitle, successCallback, failureCallback) {
 	var path = wikipediaDomain + "/wiki/" + formattedTitle;
 	$.ajax(path, {
 		success: function(data, status, xhr) {
-			if (status === "success") {
-				successCallback(data);
-			} else {
-				failureCallback(data);
-			}
+			successCallback(data);
+		},
+		error: function(data) {
+			console.log("Failed");
+			failureCallback(data);
 		}
 	});
 }
