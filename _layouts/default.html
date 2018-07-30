@@ -17,6 +17,7 @@
     {% capture scripts %}
       {% include AlbumQuery.js %}
       {% include js-url.js %}
+      {% include jquery.xdomainajax.js %}
     {% endcapture %}
     <script>{{ scripts }}</script>
 
