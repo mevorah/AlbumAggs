@@ -9,16 +9,17 @@
     <!--[if lt IE 9]>
     <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
+
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  </head>
+  <body>
     {% capture scripts %}
       {% include AlbumQuery.js %}
+      {% include js-url.js %}
     {% endcapture %}
     <script>{{ scripts }}</script>
 
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-    <!--<script src="https://cdn.rawgit.com/mevorah/AlbumAggs/master/js/AlbumQuery.js"></script>-->
-    <script src="https://cdn.rawgit.com/mevorah/AlbumAggs/master/js/js-url.js"></script>
-  </head>
-  <body>
     <div class="wrapper">
       <header>
         {% capture list %}{% include List.md %}{% endcapture %}
