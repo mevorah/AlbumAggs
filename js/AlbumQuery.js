@@ -119,6 +119,7 @@ function getWikiPageHtml(pageTitle, successCallback, failureCallback) {
 		error: function(data) {
 			console.log("Failed");
 			failureCallback(data);
-		}
+		},
+		dataType: 'jsonp'
 	});
 }
