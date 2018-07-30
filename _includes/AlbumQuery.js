@@ -113,6 +113,7 @@ function getWikiPageHtml(pageTitle, successCallback, failureCallback) {
 	var wikipediaDomain = "https://en.wikipedia.org";
 	var path = wikipediaDomain + "/wiki/" + formattedTitle;
 	$.ajax(path, {
+		type: 'GET',
 		dataType: 'html',
 		success: function(data, status, xhr) {
 			successCallback(data);
