@@ -113,18 +113,11 @@ function getWikiPageHtml(pageTitle, successCallback, failureCallback) {
 	var wikipediaDomain = "https://en.wikipedia.org";
 	var path = wikipediaDomain + "/wiki/" + formattedTitle;
 
-	$.getJSON('http://www.whateverorigin.org/get?url=' + encodeURIComponent(path) + '&callback=?', 
-		function(data){
-			console.log(data.contents);
-		}
-	);
-       
-
 	$.ajax({
-		url: path,
-		type: 'GET',
+		url: "http://anyorigin.com/go?url=" + path,
+		dataType: "jsonp",
 		success: function(data, status, xhr) {
-			successCallback(data);
+			successCallback(data.content);
 		},
 		error: function(data) {
 			console.log("Failed");
